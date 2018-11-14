@@ -7,6 +7,7 @@
 
 package io.github.jylab.otplib;
 
+import java.net.URLEncoder;
 import java.util.HashMap;
 import io.github.jylab.otplib.server.AsyncOTPRequest;
 import io.github.jylab.otplib.server.Config;
@@ -22,7 +23,7 @@ public class OTP {
     private String uuid="";
     private String OtpNumber="";
 
-    // Types of 'optProperty': idSha256, uuidSha256, UniqInfo, ...
+    // Types of 'optProperty': idSha256, uuidSha256, uniqInfo, ...
     private HashMap<String, String> optProperty =  new HashMap<String, String>();
 
 
@@ -56,12 +57,14 @@ public class OTP {
         Utility.Log("server url :"+Config.SERVER);
 
         makeUniqInfo();
-        Utility.Log("UniqInfo :"+optProperty.get("UniqInfo"));
+        Utility.Log("uniqInfo :"+optProperty.get("uniqInfo"));
+
+        String strUniqInfo = optProperty.get("uniqInfo");
 
 
         AsyncOTPRequest req = new AsyncOTPRequest();
         try {
-            OtpNumber = req.execute(Config.SERVER).get();
+            OtpNumber = req.execute(Config.SERVER+"?data="+URLEncoder.encode(strUniqInfo)).get();
             addProperty("OtpNumber", OtpNumber);
             Utility.Log("OtpNumber :"+Config.SERVER);
         }catch (Exception e){
