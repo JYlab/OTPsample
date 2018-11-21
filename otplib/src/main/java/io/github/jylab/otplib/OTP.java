@@ -24,7 +24,7 @@ public class OTP {
     private String OtpNumber="";
 
     // Types of 'optProperty': idSha256, uuidSha256, uniqInfo, ...
-    private HashMap<String, String> optProperty =  new HashMap<String, String>();
+    private HashMap<String, String> otpProperty =  new HashMap<String, String>();
 
 
     public OTP(String id, String uuid) {
@@ -34,10 +34,10 @@ public class OTP {
         Utility.Log("uuid :"+uuid);
 
         try {
-            addProperty("idSha256", getSha256(id));
-            addProperty("uuidSha256", getSha256(uuid));
-            Utility.Log("idSha256 :"+getSha256(id));
-            Utility.Log("uuidSha256 :"+getSha256(id));
+            addProperty("idSha256", getSha256(id).substring(0,16));
+            addProperty("uuidSha256", getSha256(uuid).substring(0,16));
+            Utility.Log("idSha256 :"+getSha256(id).substring(0,16));
+            Utility.Log("uuidSha256 :"+getSha256(uuid).substring(0,16));
 
 
         } catch (Exception e) {
@@ -49,24 +49,23 @@ public class OTP {
     // Optional
     public void configServer(String svrURL) {
         SERVER_URL = svrURL;
-        Utility.Log(SERVER_URL);
     }
 
 
     public String doProcess() {
-        Utility.Log("server url :"+Config.SERVER);
+        Utility.Log("server url :"+Config.SERVER_URL);
 
         makeUniqInfo();
-        Utility.Log("uniqInfo :"+optProperty.get("uniqInfo"));
+        String uniqInfo = otpProperty.get("uniqInfo");
+        Utility.Log("uniqInfo :"+ uniqInfo );
 
-        String strUniqInfo = optProperty.get("uniqInfo");
+        String strUniqInfo = uniqInfo;
 
 
         AsyncOTPRequest req = new AsyncOTPRequest();
         try {
-            OtpNumber = req.execute(Config.SERVER+"?data="+URLEncoder.encode(strUniqInfo)).get();
+            OtpNumber = req.execute(Config.SERVER_URL+"?uuid="+URLEncoder.encode(strUniqInfo)).get();
             addProperty("OtpNumber", OtpNumber);
-            Utility.Log("OtpNumber :"+Config.SERVER);
         }catch (Exception e){
             e.printStackTrace();
         }
@@ -82,8 +81,8 @@ public class OTP {
 
         byte [] tmp ;
         try {
-            idBytes = optProperty.get("idSha256").getBytes("UTF-8");
-            uuidBytes = optProperty.get("uuidSha256").getBytes("UTF-8");
+            idBytes = otpProperty.get("idSha256").getBytes("UTF-8");
+            uuidBytes = otpProperty.get("uuidSha256").getBytes("UTF-8");
 
         }catch (Exception e){
             e.printStackTrace();
@@ -94,15 +93,15 @@ public class OTP {
             UniqInfo[i] = (byte)(idBytes[i] ^ uuidBytes[i]);
         }
 
-
-        addProperty("UniqInfo", byteArrayToHex(UniqInfo) );
+        String strUniqInfo =byteArrayToHex(UniqInfo);
+        addProperty("uniqInfo", strUniqInfo );
 
     }
 
     protected void addProperty(String key, String value)
     {
         if(key != null)
-            this.optProperty.put(key, value);
+            this.otpProperty.put(key, value);
     }
 
 }

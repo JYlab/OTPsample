@@ -4,9 +4,10 @@ import android.util.Log;
 
 import java.io.FileInputStream;
 import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 
 public class Utility {
-    private static boolean FORCE_PRINT_LOG = false;
+    private static boolean FORCE_PRINT_LOG = true;
 
 
     public static void Log(String... logmsg){
@@ -49,24 +50,35 @@ public class Utility {
     }
 
 
-    public static String getSha256(String a) throws Exception{
-        MessageDigest md = MessageDigest.getInstance("SHA-256");
-        FileInputStream fis = new FileInputStream(a);
 
-        byte[] dataBytes = new byte[1024];
 
-        int nread = 0;
-        while ((nread = fis.read(dataBytes)) != -1) {
-            md.update(dataBytes, 0, nread);
-        };
-        byte[] mdbytes = md.digest();
+    public static String getSha256(String str){
 
-        StringBuffer sb = new StringBuffer();
-        for (int i = 0; i < mdbytes.length; i++) {
-            sb.append(Integer.toString((mdbytes[i] & 0xff) + 0x100, 16).substring(1));
+        String SHA = "";
+
+        try{
+
+            MessageDigest sh = MessageDigest.getInstance("SHA-256");
+
+            sh.update(str.getBytes());
+
+            byte byteData[] = sh.digest();
+
+            StringBuffer sb = new StringBuffer();
+
+            for(int i = 0 ; i < byteData.length ; i++){
+
+                sb.append(Integer.toString((byteData[i]&0xff) + 0x100, 16).substring(1));
+
+            }
+
+            SHA = sb.toString();
+
+
+        }catch(NoSuchAlgorithmException e){
+            e.printStackTrace();
+            SHA = null;
         }
-
-        return sb.toString();
-
+        return SHA;
     }
 }
